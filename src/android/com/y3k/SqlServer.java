@@ -31,6 +31,7 @@ public class SqlServer extends CordovaPlugin {
     private String username;
     private String password;
     private String database;
+    private String port;
 
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
@@ -46,11 +47,35 @@ public class SqlServer extends CordovaPlugin {
             return true;
 
         } else if (action.equals("executeQuery")) {
-        	executeQuery(args, callbackContext);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        executeQuery(args, callbackContext);
+                    }
+                    catch (Exception ex) {
+                        PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage());
+                        callbackContext.sendPluginResult(result);
+
+                    }
+                }
+            });
             return true;
 
         } else if (action.equals("execute")) {
-        	execute(args, callbackContext);
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        execute(args, callbackContext);
+                    }
+                    catch (Exception ex) {
+                        PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage());
+                        callbackContext.sendPluginResult(result);
+
+                    }
+                }
+            });
             return true;
 
         }
@@ -63,6 +88,7 @@ public class SqlServer extends CordovaPlugin {
         username = args.getString(2);
         password = args.getString(3);
         database = args.getString(4);
+        port = args.getString(5);
 
         PluginResult result = new PluginResult(PluginResult.Status.OK, "Plugin initialized");
 
@@ -82,6 +108,9 @@ public class SqlServer extends CordovaPlugin {
             result = new PluginResult(PluginResult.Status.ERROR, "Parameter database missing or invalid");
         }
 
+        if (port == null || "".equals(port)) {
+            port = "1433";
+        }
         try {
             Class.forName("net.sourceforge.jtds.jdbc.Driver");
         } catch (ClassNotFoundException ex) {
@@ -95,7 +124,7 @@ public class SqlServer extends CordovaPlugin {
         PluginResult result;
 
         try {
-            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + "/" + database + ";instance=" + instance;
+            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + ":" + port + "/" + database + ";instance=" + instance;
             Connection conn = DriverManager.getConnection(jdbcConnectionString, username, password);
             if (conn != null) {
                 if (!conn.isClosed()) {
@@ -122,7 +151,7 @@ public class SqlServer extends CordovaPlugin {
                 return;
             }
 
-            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + "/" + database + ";instance=" + instance;
+            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + ":" + port + "/" + database + ";instance=" + instance + ";sendStringParametersAsUnicode=false";
             conn = DriverManager.getConnection(jdbcConnectionString, username, password);
 
             stmt = conn.createStatement();
@@ -134,22 +163,15 @@ public class SqlServer extends CordovaPlugin {
                 JSONObject obj = new JSONObject();
                 for (int i = 1; i <= numColumns; i++) {
                     String column_name = rsmd.getColumnName(i);
-                    if (rsmd.getColumnType(i) == 2005) {
-                        obj.put(column_name, rs.getString(column_name));
-                    } else {
-                        obj.put(column_name, rs.getObject(column_name));
-                    }
+                    obj.put(column_name, rs.getObject(column_name));
                 }
                 json.put(obj);
             }
-            JSONArray array = new JSONArray();
-            array.put(json);
-            PluginResult result = new PluginResult(PluginResult.Status.OK, array.toString());
+            PluginResult result = new PluginResult(PluginResult.Status.OK, json);
             callbackContext.sendPluginResult(result);
 
         } catch (Exception ex) {
             PluginResult result = new PluginResult(PluginResult.Status.ERROR, "Error : " + ex.getMessage());
-            callbackContext.sendPluginResult(result);
         } finally {
             try {
                 if (rs != null) {
@@ -182,7 +204,7 @@ public class SqlServer extends CordovaPlugin {
                 return;
             }
 
-            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + "/" + database + ";instance=" + instance;
+            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + ":" + port + "/" + database + ";instance=" + instance;
             conn = DriverManager.getConnection(jdbcConnectionString, username, password);
 
             stmt = conn.createStatement();
@@ -193,7 +215,6 @@ public class SqlServer extends CordovaPlugin {
 
         } catch (Exception ex) {
             PluginResult result = new PluginResult(PluginResult.Status.ERROR, "Error : " + ex.getMessage());
-            callbackContext.sendPluginResult(result);
         } finally {
             try {
                 if (rs != null) {

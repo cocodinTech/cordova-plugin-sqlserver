@@ -17,6 +17,7 @@
     self.username = [command.arguments objectAtIndex:2];
     self.password = [command.arguments objectAtIndex:3];
     self.database = [command.arguments objectAtIndex:4];
+    self.port = [command.arguments objectAtIndex:5;
 
     CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"Plugin initialized"];
 
@@ -35,7 +36,10 @@
 	if (self.database == nil || [self.database length] == 0) {
 	    result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Parameter database missing or invalid"];
 	}
-
+    if (self.port == nil || [self.port length] == 0) {
+	    self.port = "1433";
+	}
+    //TODO anadir logica de indicar puerto
     initialized = true;
     
     [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
