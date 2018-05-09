@@ -19,10 +19,10 @@ cordova plugin add /path/to/folder/sqlserver-plugin
   It is also possible to install via repo url directly
   
 ```
-cordova plugin add https://github.com/SergioDosSantos/cordova-plugin-sqlserver.git
+cordova plugin add https://github.com/cocodintech/cordova-plugin-sqlserver.git (Install this fork)
 ```
 
-To install directly from NPM visit https://www.npmjs.com/package/cordova-plugin-sqlserver
+To install directly from NPM visit https://www.npmjs.com/package/cordova-plugin-sqlserver (Install original project)
 
 # How to use it
 
