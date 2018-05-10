@@ -5,22 +5,14 @@ import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.PluginResult.Status;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
-
-import android.util.Log;
-
-import java.util.Date;
 
 public class SqlServer extends CordovaPlugin {
 
@@ -31,7 +23,7 @@ public class SqlServer extends CordovaPlugin {
     private String username;
     private String password;
     private String database;
-    private String port;
+    private String instanceProperty = "";
 
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
@@ -88,15 +80,18 @@ public class SqlServer extends CordovaPlugin {
         username = args.getString(2);
         password = args.getString(3);
         database = args.getString(4);
-        port = args.getString(5);
 
         PluginResult result = new PluginResult(PluginResult.Status.OK, "Plugin initialized");
 
         if (server == null || "".equals(server)) {
             result = new PluginResult(PluginResult.Status.ERROR, "Parameter server missing or invalid");
         }
-        if (instance == null || "".equals(instance)) {
+        //instance is not required, could be empty
+        /*if (instance == null || "".equals(instance)) {
             result = new PluginResult(PluginResult.Status.ERROR, "Parameter instance missing or invalid");
+        }*/
+        if (instance != null && instance.length()>0) {
+            instanceProperty = ";instance=" + instance;
         }
         if (username == null || "".equals(username)) {
             result = new PluginResult(PluginResult.Status.ERROR, "Parameter username missing or invalid");
@@ -106,10 +101,6 @@ public class SqlServer extends CordovaPlugin {
         }
         if (database == null || "".equals(database)) {
             result = new PluginResult(PluginResult.Status.ERROR, "Parameter database missing or invalid");
-        }
-
-        if (port == null || "".equals(port)) {
-            port = "1433";
         }
         try {
             Class.forName("net.sourceforge.jtds.jdbc.Driver");
@@ -124,7 +115,10 @@ public class SqlServer extends CordovaPlugin {
         PluginResult result;
 
         try {
-            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + ":" + port + "/" + database + ";instance=" + instance;
+            if (instance != null) {
+
+            }
+            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + "/" + database + instanceProperty;
             Connection conn = DriverManager.getConnection(jdbcConnectionString, username, password);
             if (conn != null) {
                 if (!conn.isClosed()) {
@@ -151,7 +145,7 @@ public class SqlServer extends CordovaPlugin {
                 return;
             }
 
-            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + ":" + port + "/" + database + ";instance=" + instance + ";sendStringParametersAsUnicode=false";
+            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + "/" + database + instanceProperty;
             conn = DriverManager.getConnection(jdbcConnectionString, username, password);
 
             stmt = conn.createStatement();
@@ -204,7 +198,7 @@ public class SqlServer extends CordovaPlugin {
                 return;
             }
 
-            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + ":" + port + "/" + database + ";instance=" + instance;
+            String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + "/" + database + instanceProperty;
             conn = DriverManager.getConnection(jdbcConnectionString, username, password);
 
             stmt = conn.createStatement();

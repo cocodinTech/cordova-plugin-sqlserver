@@ -26,10 +26,10 @@ To install directly from NPM visit https://www.npmjs.com/package/cordova-plugin-
 
 # How to use it
 
-  After add the plugin just intialize it with database parameters server, instance, username, password, database name and port. For example:
+  After add the plugin just intialize it with database parameters server, instance (could be empty "" ), username, password, database name. For example:
 
 ```javascript
-SqlServer.init("192.168.0.120", "SQLEXPRESS", "sa", "01234567", "dinademo", "1433", function(event) {
+SqlServer.init("192.168.0.120:1433", "SQLEXPRESS", "sa", "01234567", "dinademo", function(event) {
   alert(JSON.stringify(event));
 }, function(error) {
   alert(JSON.stringify(error));
