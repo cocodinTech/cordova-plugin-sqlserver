@@ -48,7 +48,6 @@ public class SqlServer extends CordovaPlugin {
                     catch (Exception ex) {
                         PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage());
                         callbackContext.sendPluginResult(result);
-
                     }
                 }
             });
@@ -64,7 +63,6 @@ public class SqlServer extends CordovaPlugin {
                     catch (Exception ex) {
                         PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage());
                         callbackContext.sendPluginResult(result);
-
                     }
                 }
             });
@@ -166,6 +164,7 @@ public class SqlServer extends CordovaPlugin {
 
         } catch (Exception ex) {
             PluginResult result = new PluginResult(PluginResult.Status.ERROR, "Error : " + ex.getMessage());
+            callbackContext.sendPluginResult(result);
         } finally {
             try {
                 if (rs != null) {
@@ -209,6 +208,7 @@ public class SqlServer extends CordovaPlugin {
 
         } catch (Exception ex) {
             PluginResult result = new PluginResult(PluginResult.Status.ERROR, "Error : " + ex.getMessage());
+            callbackContext.sendPluginResult(result);
         } finally {
             try {
                 if (rs != null) {
