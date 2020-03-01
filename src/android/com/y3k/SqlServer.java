@@ -199,13 +199,35 @@ public class SqlServer extends CordovaPlugin {
 
             String jdbcConnectionString = "jdbc:jtds:sqlserver://" + server + "/" + database + instanceProperty;
             conn = DriverManager.getConnection(jdbcConnectionString, username, password);
-
             stmt = conn.createStatement();
-            stmt.execute(query);
-
-            PluginResult result = new PluginResult(PluginResult.Status.OK, "Ok");
+            boolean results = stmt.execute(query);
+            JSONArray json = new JSONArray();
+            int count = 0;
+            do {
+                if (results) {
+                    rs = stmt.getResultSet();
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    while (rs.next()) {
+                        int numColumns = rsmd.getColumnCount();
+                        JSONObject obj = new JSONObject();
+                        for (int i = 1; i <= numColumns; i++) {
+                            String column_name = rsmd.getColumnName(i);
+                            obj.put(column_name, rs.getObject(column_name));
+                        }
+                        json.put(obj);
+                    }
+                } else {
+                    count = stmt.getUpdateCount();
+                    /*if (count >= 0) {
+                        System.out.println("DDL or update data displayed here.");
+                    } else {
+                        System.out.println("No more results to process.");
+                    }*/
+                }
+                results = stmt.getMoreResults();
+            } while (results || count != -1);
+            PluginResult result = new PluginResult(PluginResult.Status.OK, json);
             callbackContext.sendPluginResult(result);
-
         } catch (Exception ex) {
             PluginResult result = new PluginResult(PluginResult.Status.ERROR, "Error : " + ex.getMessage());
             callbackContext.sendPluginResult(result);
