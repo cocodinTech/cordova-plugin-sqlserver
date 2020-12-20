@@ -94,7 +94,7 @@ public class SqlServer extends CordovaPlugin {
         if (username == null || "".equals(username)) {
             result = new PluginResult(PluginResult.Status.ERROR, "Parameter username missing or invalid");
         }
-        if (password == null || "".equals(password)) {
+        if (password == null) {
             result = new PluginResult(PluginResult.Status.ERROR, "Parameter password missing or invalid");
         }
         if (database == null || "".equals(database)) {
